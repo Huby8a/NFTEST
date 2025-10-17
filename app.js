@@ -432,39 +432,15 @@ function renderWorkoutLog(){
 }
 
 function renderBodyDiagram() {
+  // Simply mount the template - anatomy.js will handle all the binding
   mount("body-diagram-template");
-
-  const toggleBtn = document.getElementById("toggleViewBtn");
-  const front = document.getElementById("frontView");
-  const back = document.getElementById("backView");
-
-  toggleBtn.addEventListener("click", () => {
-    const isFront = front.style.display !== "none";
-    front.style.display = isFront ? "none" : "block";
-    back.style.display = isFront ? "block" : "none";
-    toggleBtn.textContent = isFront ? "Show Front View" : "Show Back View";
-  });
-
-const muscles = [
-  "chest", "biceps", "biceps2", "abs", "quadsL", "quadsR",
-  "obliques", "forearms", "quads", "calves",
-  "traps", "deltsL", "deltsR", "lats", "lowerBack", "glutes", "hamsL", "hamsR"
-];
-
-muscles.forEach(muscle => {
-  const el = document.getElementById(muscle);
-  if (el) {
-    el.addEventListener("click", () => {
-      location.hash = `#/workouts/${muscle}`;
-    });
-  }
-});
+  $("#sidebar")?.classList.remove("open");
 }
 
 function renderMuscle(muscle) {
   if (!guard()) return;
   document.body.classList.remove("auth");
-  mount(`${muscle}-template`);   // expects <template id="biceps-template"> etc
+  mount(`${muscle}-template`);
   $("#sidebar")?.classList.remove("open");
 }
 
@@ -621,7 +597,7 @@ function renderGeneratePlan(){
         };
 
         if (profile.equipment.length === 0) {
-            Notify.info("No Equipment Selected", "Select at least one piece of equipment for better results.");
+          Notify.info("No Equipment Selected", "Select at least one piece of equipment for better results.");
             return;
         }
 

@@ -1,6 +1,8 @@
-// NeuroFit — Body Diagram autowire (front/back toggle + region routing)
-// This works without changing app.js by observing when the template is mounted.
+// NeuroFit — Body Diagram binder (hash-route safe, no MutationObserver)
+
 (() => {
+  const ROUTE_PREFIX = '#/workouts/diagram';
+
   const muscleToTemplate = {
     // FRONT
     chest:  'chest-template',
@@ -19,23 +21,29 @@
     hamsR:  'hamsR-template',
   };
 
+  function isDiagramRoute() {
+    return (location.hash || '').startsWith(ROUTE_PREFIX);
+  }
+
   function showTemplate(tplId) {
     const t = document.getElementById(tplId);
     const app = document.getElementById('app');
     if (!t || !app) return;
     app.innerHTML = '';
     app.appendChild(t.content.cloneNode(true));
-    // reflect state in URL for SPA feel
-    window.location.hash = `#/workouts/diagram/${tplId.replace('-template','')}`;
+    // reflect state in URL
+    window.location.hash = `${ROUTE_PREFIX}/${tplId.replace('-template','')}`;
   }
 
-  function initBodyDiagram(root) {
+  function bindDiagram(root) {
+    if (!root || root.dataset.bound === '1') return false;
+
     const front = root.querySelector('#frontView');
     const back  = root.querySelector('#backView');
     const toggleBtn = root.querySelector('#toggleViewBtn');
     if (!front || !back || !toggleBtn) return false;
 
-    // default to front view
+    // default state
     let isFront = true;
     front.style.display = 'block';
     back.style.display  = 'none';
@@ -50,13 +58,11 @@
 
     const clickable = [...front.querySelectorAll('[id]'), ...back.querySelectorAll('[id]')];
     clickable.forEach(el => {
-      // accessibility
       el.setAttribute('role', 'button');
       el.tabIndex = 0;
       el.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
       });
-
       el.addEventListener('click', () => {
         const tpl = muscleToTemplate[el.id];
         if (tpl) showTemplate(tpl);
@@ -64,25 +70,33 @@
       });
     });
 
+    root.dataset.bound = '1';
     return true;
   }
 
-  function tryInit() {
-    const app = document.getElementById('app');
-    if (!app) return;
-    // look for the body-diagram section currently rendered
-    const card = app.querySelector('section.card');
-    if (card && (card.querySelector('#frontView') || card.querySelector('#backView'))) {
-      initBodyDiagram(card);
-    }
+  // Try to bind when route is correct; retry briefly to allow your router to render the template
+  function tryBindWithRetries(maxTries = 40, delayMs = 50) {
+    if (!isDiagramRoute()) return;
+    let tries = 0;
+
+    const tick = () => {
+      const app = document.getElementById('app');
+      const section = app?.querySelector('section.card');
+      const hasDiagram = section && (section.querySelector('#frontView') || section.querySelector('#backView'));
+
+      if (hasDiagram && bindDiagram(section)) return; // bound successfully
+      if (++tries >= maxTries) return;               // give up quietly after ~2s
+      setTimeout(tick, delayMs);
+    };
+
+    tick();
   }
 
+  window.addEventListener('hashchange', () => {
+    if (isDiagramRoute()) tryBindWithRetries();
+  });
+
   document.addEventListener('DOMContentLoaded', () => {
-    tryInit();
-    const app = document.getElementById('app');
-    if (!app) return;
-    // Re-init whenever router swaps templates
-    const mo = new MutationObserver(() => tryInit());
-    mo.observe(app, { childList: true, subtree: true });
+    if (isDiagramRoute()) tryBindWithRetries();
   });
 })();

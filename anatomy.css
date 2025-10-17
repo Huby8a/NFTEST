@@ -1,0 +1,34 @@
+/* PNG hotspot version (kept for reference – not used by default) */
+.diagram-container {
+  position: relative;
+  width: 350px;
+  margin: 40px auto;
+}
+.body-image { width: 100%; border-radius: 10px; display: block; }
+.hotspot { position: absolute; background: transparent; border: 0; cursor: pointer; }
+.hotspot:hover { outline: 2px solid rgba(16,185,129,.6); background: rgba(16,185,129,.08); }
+
+/* SVG body diagram visuals */
+.body-diagram {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+}
+
+.body-diagram svg {
+  max-width: 280px; /* adjust as needed */
+  height: auto;
+}
+
+#frontView [id], #backView [id] {
+  cursor: pointer;
+  transition: filter .15s ease, opacity .15s ease;
+  outline: none;
+}
+
+#frontView [id]:hover, #backView [id]:hover,
+#frontView [id]:focus-visible, #backView [id]:focus-visible {
+  filter: drop-shadow(0 0 6px rgba(16,185,129,.7));
+  opacity: .95;
+}

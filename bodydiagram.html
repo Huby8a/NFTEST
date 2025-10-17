@@ -1,0 +1,47 @@
+<div class="diagram-container">
+  <img src="front-view.png" alt="Body Diagram" class="body-image" id="bodyImage">
+
+  <!-- Invisible clickable regions -->
+  <button class="hotspot" style="left:43%; top:25%; width:15%; height:6%;" data-muscle="Chest"></button>
+  <button class="hotspot" style="left:47%; top:37%; width:7%; height:8%;" data-muscle="Abs"></button>
+  <button class="hotspot" style="left:43%; top:55%; width:14%; height:15%;" data-muscle="Legs"></button>
+  <button class="hotspot" style="left:36%; top:30%; width:6%; height:10%;" data-muscle="Arms"></button>
+  <button class="hotspot" style="left:58%; top:30%; width:6%; height:10%;" data-muscle="Arms"></button>
+</div>
+
+<style>
+.diagram-container {
+  position: relative;
+  width: 350px;
+  margin: 40px auto;
+}
+
+.body-image {
+  width: 100%;
+  border-radius: 10px;
+  display: block;
+}
+
+.hotspot {
+  position: absolute;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.hotspot:hover {
+  outline: 2px solid rgba(0, 255, 100, 0.5);
+  background: rgba(0, 255, 100, 0.1);
+}
+</style>
+
+<script>
+document.querySelectorAll(".hotspot").forEach((spot) => {
+  spot.addEventListener("click", () => {
+    const muscle = spot.dataset.muscle;
+    alert(`Selected: ${muscle}`);
+    // you could also redirect:
+    // window.location.href = `workouts.html?muscle=${muscle}`;
+  });
+});
+</script>
